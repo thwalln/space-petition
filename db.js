@@ -17,14 +17,22 @@ const db = spicedPg(
 
 console.log(`[db] connecting to:${database}`);
 
-module.exports.getOscars = () => {
-    const q = "SELECT * FROM oscars";
+// SELECT first and last names of every signer
+module.exports.selectFirstAndLast = () => {
+    const q = "SELECT first, last FROM signatures";
     return db.query(q);
 };
 
-module.exports.addOscar = (actorName, actorAge, numOscars) => {
-    const q = `INSERT INTO oscars (name, age, number_of_oscars)
+// SELECT to get a total number of signers
+module.exports.selectTotalNumOfSigners = () => {
+    const q = "SELECT COUNT(*) FROM signatures";
+    return db.query(q);
+};
+
+// INSERT the user's signature and name
+module.exports.insertUserData = (firstName, lastName, signature) => {
+    const q = `INSERT INTO signatures (first, last, signature)
                 VALUES ($1, $2, $3)`;
-    const params = [actorName, actorAge, numOscars];
+    const params = [firstName, lastName, signature];
     return db.query(q, params);
 };

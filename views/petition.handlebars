@@ -3,10 +3,16 @@ the form field for the signature is type="hidden" (for development purposes, if 
 should conditionally render an error message if the insert into the database fails
 contains a link to your scrip.js file that contains the code for your canvas signature logic }}
 
-<form action="POST">
-    <input type="text" name="first" id="first" />
-    <input type="text" name="last" id="last" />
-    <input type="text" name="signature" id="signature" />
+<form action="" method="POST">
+    <input type="text" name="first" id="first" placeholder="firstname" />
+    <input type="text" name="last" id="last" placeholder="lastname" />
+    <input type="text" name="signature" id="signature" type="hidden" />
     <canvas></canvas>
     <button>SUBMIT</button>
 </form>
+
+{{#if err}}
+    <p>ERROR!!!!!!</p>
+{{/if}}
+
+<script src="/script.js"></script>
