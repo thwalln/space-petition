@@ -1,0 +1,12 @@
+{{! contains a form, containing three form fields (first, last, and signature), a submit button, and a canvas
+the form field for the signature is type="hidden" (for development purposes, if you havn't coded the clientside-JS-logic to let the user sign on the canvas, you can hardcode some value to insert it into the database for interims)
+should conditionally render an error message if the insert into the database fails
+contains a link to your scrip.js file that contains the code for your canvas signature logic }}
+
+<form action="POST">
+    <input type="text" name="first" id="first" />
+    <input type="text" name="last" id="last" />
+    <input type="text" name="signature" id="signature" />
+    <canvas></canvas>
+    <button>SUBMIT</button>
+</form>
