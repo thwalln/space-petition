@@ -7,8 +7,5 @@ CREATE TABLE signatures (
     signature VARCHAR NOT NULL CHECK (signature != '')
 );
 
-INSERT INTO signatures (first, last, signature) VALUES ('Thomas', 'Wallner', 'Signature TW');
-INSERT INTO signatures (first, last, signature) VALUES ('Niklas', 'Klein', 'Signature NK');
-INSERT INTO signatures (first, last, signature) VALUES ('Demian', 'Kapser', 'Signature DK');
 
 SELECT * FROM signatures;

@@ -3,8 +3,8 @@ const app = express();
 const PORT = 8080;
 const db = require("./db");
 const { engine } = require("express-handlebars");
-const cookieParser = require("cookie-parser");
 const cookieSession = require("cookie-session");
+const secrets = require("./secrets.json");
 
 ///////////////////////////////////////////// EXPRESS HANDLEBARS  ////////////////////////////////////
 
@@ -15,15 +15,17 @@ app.set("view engine", "handlebars");
 
 app.use(express.static("./public"));
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-// app.use(cookieSession({}));
+app.use(
+    cookieSession({
+        secret: secrets.COOKIE_SECRET,
+        maxAge: 1000 * 60 * 60 * 24 * 14,
+    })
+);
 
 ///////////////////////////////////////////// ROUTES /////////////////////////////////////////////
 
 app.get("/petition", (req, res) => {
-    const cookie = req.cookies;
-
-    if (cookie.signed === "true") {
+    if (req.session.signed === "true") {
         res.redirect("/thanks");
     } else {
         res.render("petition.handlebars", {
@@ -34,10 +36,11 @@ app.get("/petition", (req, res) => {
 
 app.post("/petition", (req, res) => {
     const data = req.body;
+    console.log(req.body);
 
     db.insertUserData(data.first, data.last, data.signature)
         .then(() => {
-            res.cookie("signed", "true");
+            req.session.signed = "true";
             res.redirect("/thanks");
         })
         .catch((err) => {
@@ -53,9 +56,7 @@ app.post("/petition", (req, res) => {
 });
 
 app.get("/thanks", (req, res) => {
-    const cookie = req.cookies;
-
-    if (cookie.signed === "true") {
+    if (req.session.signed === "true") {
         db.selectTotalNumOfSigners()
             .then((data) => {
                 const count = data.rows[0].count;
@@ -71,9 +72,7 @@ app.get("/thanks", (req, res) => {
 });
 
 app.get("/signers", (req, res) => {
-    const cookie = req.cookies;
-
-    if (cookie.signed === "true") {
+    if (req.session.signed === "true") {
         db.selectFirstAndLast()
             .then((data) => {
                 const signers = data.rows;

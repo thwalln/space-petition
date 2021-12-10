@@ -4,12 +4,21 @@ should conditionally render an error message if the insert into the database fai
 contains a link to your scrip.js file that contains the code for your canvas signature logic }}
 
 <form action="" method="POST">
-    <label for="first">First Name</label>
-    <input type="text" name="first" id="first" placeholder="firstname" />
-    <label for="last">Last Name</label>
-    <input type="text" name="last" id="last" placeholder="lastname" />
-    <input type="text" type="hidden" name="signature" id="signature" />
-    <canvas></canvas>
+    <div><label for="first">First Name</label>
+        <input
+            type="text"
+            name="first"
+            id="first"
+            placeholder="firstname"
+        /></div>
+    <div>
+        <label for="last">Last Name</label>
+        <input type="text" name="last" id="last" placeholder="lastname" />
+    </div>
+    <div>
+        <input type="hidden" name="signature" id="signature" />
+        <canvas id="canv" width="400" height="200"></canvas>
+    </div>
     <button>SUBMIT</button>
 </form>
 
@@ -17,4 +26,4 @@ contains a link to your scrip.js file that contains the code for your canvas sig
     <p>ERROR!!!!!!</p>
 {{/if}}
 
-<script src="/script.js"></script>
+<script src="../public/script.js"></script>
