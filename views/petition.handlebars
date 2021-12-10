@@ -4,14 +4,16 @@ should conditionally render an error message if the insert into the database fai
 contains a link to your scrip.js file that contains the code for your canvas signature logic }}
 
 <form action="" method="POST">
+    <label for="first">First Name</label>
     <input type="text" name="first" id="first" placeholder="firstname" />
+    <label for="last">Last Name</label>
     <input type="text" name="last" id="last" placeholder="lastname" />
-    <input type="text" name="signature" id="signature" type="hidden" />
+    <input type="text" type="hidden" name="signature" id="signature" />
     <canvas></canvas>
     <button>SUBMIT</button>
 </form>
 
-{{#if err}}
+{{#if error}}
     <p>ERROR!!!!!!</p>
 {{/if}}
 

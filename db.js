@@ -9,8 +9,7 @@ const database = "petition"; // this is the database name, not the tables
 const username = "postgres";
 const password = "postgres";
 
-// let's create our line of communication to the database
-
+// Let's create our line of communication to the database
 const db = spicedPg(
     `postgres:${username}:${password}@localhost:5432/${database}`
 );

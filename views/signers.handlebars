@@ -1,3 +1,11 @@
 <h1>Signers Page</h1>
 
 {{! expects an array of objects with first and last name properties. loops through the array and prints each first and last name }}
+
+<ul>
+
+    {{#signers}}
+        <li>{{this.first}} {{this.last}}</li>
+    {{/signers}}
+
+</ul>
