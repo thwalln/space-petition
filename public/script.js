@@ -1,4 +1,6 @@
-(function () {
+(() => {
+    ///////////////////////////////////////////// SETUP VARIBALES /////////////////////////////////////////////
+
     const canvas = document.querySelector("canvas");
     const ctx = canvas.getContext("2d");
 
@@ -6,39 +8,34 @@
     let x = 0;
     let y = 0;
 
-    function drawLine(ctx, x1, y1, x2, y2) {
+    ///////////////////////////////////////////// HELPER FUNCTIONS /////////////////////////////////////////////
+
+    const drawSignature = (x, y, offsetX, offsetY) => {
         ctx.beginPath();
         ctx.strokeStyle = "black";
-        ctx.lineWidth = 2;
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
+        ctx.lineWidth = 3;
+        ctx.moveTo(x, y);
+        ctx.lineTo(offsetX, offsetY);
         ctx.stroke();
-        ctx.closePath();
-    }
+    };
+
+    ///////////////////////////////////////////// EVENT LISTENER  /////////////////////////////////////////////
 
     canvas.addEventListener("mousedown", (e) => {
-        console.log("mousedown: ", e.offsetX, e.offsetY);
+        signing = true;
         x = e.offsetX;
         y = e.offsetY;
-        signing = true;
     });
 
     canvas.addEventListener("mousemove", (e) => {
         if (signing === true) {
-            drawLine(ctx, x, y, e.offsetX, e.offsetY);
+            drawSignature(x, y, e.offsetX, e.offsetY);
             x = e.offsetX;
             y = e.offsetY;
         }
     });
 
-    window.addEventListener("mouseup", (e) => {
-        if (signing === true) {
-            drawLine(ctx, x, y, e.offsetX, e.offsetY);
-            x = 0;
-            y = 0;
-            signing = false;
-        }
-        const dataURL = canvas.toDataURL();
-        document.getElementById("signature").value = dataURL;
+    canvas.addEventListener("mouseup", () => {
+        signing = false;
     });
 })();

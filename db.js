@@ -5,7 +5,7 @@
 // update data
 
 const spicedPg = require("spiced-pg");
-const database = "petition"; // this is the database name, not the tables
+const database = "petition";
 const username = "postgres";
 const password = "postgres";
 

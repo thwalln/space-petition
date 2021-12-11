@@ -13,14 +13,19 @@ app.set("view engine", "handlebars");
 
 ///////////////////////////////////////////// MIDDLEWARE /////////////////////////////////////////////
 
-app.use(express.static("./public"));
-app.use(express.urlencoded({ extended: false }));
-app.use(
-    cookieSession({
-        secret: secrets.COOKIE_SECRET,
-        maxAge: 1000 * 60 * 60 * 24 * 14,
-    })
-);
+app.use(express.static("./public"))
+    .use(express.urlencoded({ extended: false }))
+    .use(
+        cookieSession({
+            secret: secrets.COOKIE_SECRET,
+            maxAge: 1000 * 60 * 60 * 24 * 14,
+            sameSite: true,
+        })
+    )
+    .use((req, res, next) => {
+        res.setHeader("x-frame-options", "deny");
+        next();
+    });
 
 ///////////////////////////////////////////// ROUTES /////////////////////////////////////////////
 
@@ -28,9 +33,7 @@ app.get("/petition", (req, res) => {
     if (req.session.signed === "true") {
         res.redirect("/thanks");
     } else {
-        res.render("petition.handlebars", {
-            layout: "main",
-        });
+        res.render("petition.handlebars");
     }
 });
 
@@ -49,7 +52,6 @@ app.post("/petition", (req, res) => {
                 err
             );
             res.render("petition.handlebars", {
-                layout: "main",
                 error: true,
             });
         });
@@ -61,7 +63,6 @@ app.get("/thanks", (req, res) => {
             .then((data) => {
                 const count = data.rows[0].count;
                 res.render("thanks.handlebars", {
-                    layout: "main",
                     count,
                 });
             })
@@ -78,7 +79,6 @@ app.get("/signers", (req, res) => {
                 const signers = data.rows;
                 console.log(signers);
                 res.render("signers.handlebars", {
-                    layout: "main",
                     signers,
                 });
             })
@@ -93,5 +93,5 @@ app.get("*", (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log("Petition server listening");
+    console.log("Petition server listening on port ${PORT}");
 });
