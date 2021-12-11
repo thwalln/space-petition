@@ -16,9 +16,9 @@ const db = spicedPg(
 
 console.log(`[db] connecting to:${database}`);
 
-// SELECT first and last names of every signer
-module.exports.selectFirstAndLast = () => {
-    const q = "SELECT first, last FROM signatures";
+// SELECT to get all user data
+module.exports.selectAllUserData = () => {
+    const q = "SELECT * FROM signatures";
     return db.query(q);
 };
 
@@ -28,10 +28,10 @@ module.exports.selectTotalNumOfSigners = () => {
     return db.query(q);
 };
 
-// INSERT the user's signature and name
+// INSERT the user's signature and name and return their ID
 module.exports.insertUserData = (firstName, lastName, signature) => {
     const q = `INSERT INTO signatures (first, last, signature)
-                VALUES ($1, $2, $3)`;
+                VALUES ($1, $2, $3) RETURNING id`;
     const params = [firstName, lastName, signature];
     return db.query(q, params);
 };

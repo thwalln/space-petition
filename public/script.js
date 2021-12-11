@@ -3,6 +3,7 @@
 
     const canvas = document.querySelector("canvas");
     const ctx = canvas.getContext("2d");
+    const signature = document.getElementById("signature");
 
     let signing = false;
     let x = 0;
@@ -10,12 +11,12 @@
 
     ///////////////////////////////////////////// HELPER FUNCTIONS /////////////////////////////////////////////
 
-    const drawSignature = (x, y, offsetX, offsetY) => {
+    const drawSignature = (x, y, newX, newY) => {
         ctx.beginPath();
         ctx.strokeStyle = "black";
         ctx.lineWidth = 3;
         ctx.moveTo(x, y);
-        ctx.lineTo(offsetX, offsetY);
+        ctx.lineTo(newX, newY);
         ctx.stroke();
     };
 
@@ -35,7 +36,9 @@
         }
     });
 
-    canvas.addEventListener("mouseup", () => {
+    window.addEventListener("mouseup", () => {
         signing = false;
+        const dataURL = canvas.toDataURL();
+        signature.value = dataURL;
     });
 })();

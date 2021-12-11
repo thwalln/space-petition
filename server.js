@@ -30,40 +30,43 @@ app.use(express.static("./public"))
 ///////////////////////////////////////////// ROUTES /////////////////////////////////////////////
 
 app.get("/petition", (req, res) => {
-    if (req.session.signed === "true") {
+    if (req.session.petitionSigned) {
         res.redirect("/thanks");
     } else {
-        res.render("petition.handlebars");
+        res.render("petition");
     }
 });
 
 app.post("/petition", (req, res) => {
     const data = req.body;
-    console.log(req.body);
 
     db.insertUserData(data.first, data.last, data.signature)
-        .then(() => {
-            req.session.signed = "true";
+        .then((data) => {
+            req.session.signatureId = data.rows[0].id;
+            req.session.petitionSigned = true;
             res.redirect("/thanks");
         })
         .catch((err) => {
-            console.log(
-                "Error in posting new values to database in POST / petition",
-                err
-            );
-            res.render("petition.handlebars", {
-                error: true,
-            });
+            console.log("Error in posting new values to database", err);
+            res.render("petition", { error: true });
         });
 });
 
 app.get("/thanks", (req, res) => {
-    if (req.session.signed === "true") {
+    if (req.session.petitionSigned) {
         db.selectTotalNumOfSigners()
             .then((data) => {
                 const count = data.rows[0].count;
-                res.render("thanks.handlebars", {
-                    count,
+                return count;
+            })
+            .then((count) => {
+                db.selectAllUserData().then((data) => {
+                    const userSignatureURL =
+                        data.rows[req.session.signatureId - 1].signature;
+                    res.render("thanks", {
+                        count,
+                        userSignatureURL,
+                    });
                 });
             })
             .catch((err) => console.log(err));
@@ -73,12 +76,12 @@ app.get("/thanks", (req, res) => {
 });
 
 app.get("/signers", (req, res) => {
-    if (req.session.signed === "true") {
-        db.selectFirstAndLast()
+    if (req.session.petitionSigned) {
+        db.selectAllUserData()
             .then((data) => {
                 const signers = data.rows;
-                console.log(signers);
-                res.render("signers.handlebars", {
+                // console.log(signers);
+                res.render("signers", {
                     signers,
                 });
             })
@@ -93,5 +96,5 @@ app.get("*", (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log("Petition server listening on port ${PORT}");
+    console.log(`Petition server listening on port ${PORT}`);
 });

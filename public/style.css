@@ -1,8 +1,7 @@
 body {
-    background-color: pink;
+    background-color: #eee;
 }
 
 canvas {
     border: solid black 2px;
-    background-color: aqua;
 }
