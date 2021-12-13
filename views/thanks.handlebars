@@ -1,13 +1,8 @@
-{{! 
-DONE -----> Just says thankyou for signing
-DONE -----> has a link to the signers page
+<main>
+    <h1>THANKS FOR SIGNING</h1>
 
-displays information about how many people have signed the petition
-}}
+    <a href="/signers">Link to Signers Page</a><br />
+    <img src="{{userSignature}}" alt="" />
 
-<h1>THANKS FOR SIGNING</h1>
-
-<a href="/signers">Link to Signers Page</a>
-<img src="{{userSignatureURL}}" alt="" />
-
-<p>Number of people that aleady signed the petition: {{count}}</p>
+    <p>Number of people that aleady signed the petition: {{count}}</p>
+</main>

@@ -1,29 +1,15 @@
-{{! contains a form, containing three form fields (first, last, and signature), a submit button, and a canvas
-the form field for the signature is type="hidden" (for development purposes, if you havn't coded the clientside-JS-logic to let the user sign on the canvas, you can hardcode some value to insert it into the database for interims)
-should conditionally render an error message if the insert into the database fails
-contains a link to your scrip.js file that contains the code for your canvas signature logic }}
+<main>
+    <form action="" method="POST">
+        <div>
+            <input type="hidden" name="signature" id="signature" />
+            <canvas id="canv" width="400" height="75"></canvas>
+        </div>
+        <button>SUBMIT</button>
+    </form>
 
-<form action="" method="POST">
-    <div><label for="first">First Name</label>
-        <input
-            type="text"
-            name="first"
-            id="first"
-            placeholder="firstname"
-        /></div>
-    <div>
-        <label for="last">Last Name</label>
-        <input type="text" name="last" id="last" placeholder="lastname" />
-    </div>
-    <div>
-        <input type="hidden" name="signature" id="signature" />
-        <canvas id="canv" width="400" height="75"></canvas>
-    </div>
-    <button>SUBMIT</button>
-</form>
-
-{{#if error}}
-    <p>ERROR!!!!!!</p>
-{{/if}}
+    {{#if error}}
+        <p>ERROR!!!!!!</p>
+    {{/if}}
+</main>
 
 <script src="../public/script.js"></script>

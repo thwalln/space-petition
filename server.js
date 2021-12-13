@@ -1,10 +1,17 @@
 const express = require("express");
 const app = express();
 const PORT = 8080;
-const db = require("./db");
+const {
+    selectAllUserDataFromSignaturesTable,
+    selectTotalNumOfSignersFromSignaturesTable,
+    insertUserDataIntoSignaturesTable,
+    insertUserDataIntoUsersTable,
+    selectAllUserDataFromUsersTable,
+} = require("./db");
 const { engine } = require("express-handlebars");
 const cookieSession = require("cookie-session");
 const secrets = require("./secrets.json");
+const bc = require("./bc");
 
 ///////////////////////////////////////////// EXPRESS HANDLEBARS  ////////////////////////////////////
 
@@ -29,8 +36,71 @@ app.use(express.static("./public"))
 
 ///////////////////////////////////////////// ROUTES /////////////////////////////////////////////
 
+app.get("/registration", (req, res) => {
+    res.render("registration", {});
+});
+
+app.post("/registration", (req, res) => {
+    const data = req.body;
+    const cookie = req.session;
+    bc.hash(data.password)
+        .then((hashedPw) => {
+            return insertUserDataIntoUsersTable(
+                data.first,
+                data.last,
+                data.email,
+                hashedPw
+            );
+        })
+        .then((userData) => {
+            cookie.userId = userData.rows[0].id;
+            res.redirect("/login");
+        })
+        .catch((err) => {
+            console.log("Error in registration", err);
+            res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
+        });
+});
+
+app.get("/login", (req, res) => {
+    res.render("login", {});
+});
+
+app.post("/login", (req, res) => {
+    const data = req.body;
+    const cookie = req.session;
+    selectAllUserDataFromUsersTable(data.email)
+        .then((userData) => {
+            bc.compare(data.password, userData.rows[0].password).then(
+                (match) => {
+                    if (match) {
+                        cookie.userId = userData.rows[0].id;
+                        console.log("first LOG:", userData);
+                        selectAllUserDataFromSignaturesTable(cookie.userId)
+                            .then((userData) => {
+                                console.log("Second LOG:", userData);
+                                if (
+                                    userData.rowCount === 1 &&
+                                    userData.rows[0].user_id === cookie.userId
+                                ) {
+                                    cookie.sigId = true;
+                                    res.redirect("/thanks");
+                                } else {
+                                    res.redirect("/petition");
+                                }
+                            })
+                            .catch((err) => console.log(err));
+                    } else {
+                        res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
+                    }
+                }
+            );
+        })
+        .catch((err) => console.log(err));
+});
+
 app.get("/petition", (req, res) => {
-    if (req.session.petitionSigned) {
+    if (req.session.sigId) {
         res.redirect("/thanks");
     } else {
         res.render("petition");
@@ -39,60 +109,62 @@ app.get("/petition", (req, res) => {
 
 app.post("/petition", (req, res) => {
     const data = req.body;
-
-    db.insertUserData(data.first, data.last, data.signature)
-        .then((data) => {
-            req.session.signatureId = data.rows[0].id;
-            req.session.petitionSigned = true;
+    const cookie = req.session;
+    insertUserDataIntoSignaturesTable(cookie.userId, data.signature)
+        .then((newUser) => {
+            cookie.signatureId = newUser.rows[0].id;
+            cookie.sigId = true;
             res.redirect("/thanks");
         })
         .catch((err) => {
-            console.log("Error in posting new values to database", err);
+            console.log("err inserting new user in db", err);
             res.render("petition", { error: true });
         });
 });
 
 app.get("/thanks", (req, res) => {
-    if (req.session.petitionSigned) {
-        db.selectTotalNumOfSigners()
-            .then((data) => {
-                const count = data.rows[0].count;
+    const cookie = req.session;
+    if (cookie.sigId) {
+        selectTotalNumOfSignersFromSignaturesTable()
+            .then((userCount) => {
+                const count = userCount.rows[0].count;
                 return count;
             })
             .then((count) => {
-                db.selectAllUserData().then((data) => {
-                    const userSignatureURL =
-                        data.rows[req.session.signatureId - 1].signature;
-                    res.render("thanks", {
-                        count,
-                        userSignatureURL,
-                    });
-                });
+                selectAllUserDataFromSignaturesTable(cookie.userId).then(
+                    (userData) => {
+                        const userSignature = userData.rows[0].signature;
+                        res.render("thanks", {
+                            count,
+                            userSignature,
+                        });
+                    }
+                );
             })
             .catch((err) => console.log(err));
     } else {
-        res.redirect("/petition");
+        res.redirect("/registration");
     }
 });
 
 app.get("/signers", (req, res) => {
-    if (req.session.petitionSigned) {
-        db.selectAllUserData()
-            .then((data) => {
-                const signers = data.rows;
-                // console.log(signers);
+    const cookie = req.session;
+    if (cookie.sigId) {
+        selectAllUserDataFromSignaturesTable()
+            .then((userData) => {
+                const signers = userData.rows;
                 res.render("signers", {
                     signers,
                 });
             })
             .catch((err) => console.log(err));
     } else {
-        res.redirect("/petition");
+        res.redirect("/registration");
     }
 });
 
 app.get("*", (req, res) => {
-    res.redirect("/petition");
+    res.redirect("/registration");
 });
 
 app.listen(PORT, () => {

@@ -1,11 +1,10 @@
-<h1>Signers Page</h1>
+<main>
+    <h1>Signers Page</h1>
+    <ul>
 
-{{! expects an array of objects with first and last name properties. loops through the array and prints each first and last name }}
+        {{#signers}}
+            <li>{{this.first}} {{this.last}}</li>
+        {{/signers}}
 
-<ul>
-
-    {{#signers}}
-        <li>{{this.first}} {{this.last}}</li>
-    {{/signers}}
-
-</ul>
+    </ul>
+</main>

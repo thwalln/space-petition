@@ -1,7 +1,14 @@
 body {
     background-color: #eee;
+    display: flex;
+    justify-content: center;
+    height: 100vh;
 }
 
 canvas {
     border: solid black 2px;
+}
+
+main {
+    padding-top: 200px;
 }
