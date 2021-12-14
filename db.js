@@ -16,21 +16,18 @@ const db = spicedPg(
 
 console.log(`[db] connecting to:${database}`);
 
-// SELECT to get all user data
-module.exports.selectAllUserDataFromSignaturesTable = (userId) => {
+module.exports.getSignatureData = (userId) => {
     const q = "SELECT * FROM signatures WHERE user_id=$1";
     const params = [userId];
     return db.query(q, params);
 };
 
-// SELECT to get a total number of signers
-module.exports.selectTotalNumOfSignersFromSignaturesTable = () => {
+module.exports.getSignatureCount = () => {
     const q = "SELECT COUNT(*) FROM signatures";
     return db.query(q);
 };
 
-// INSERT the user's signature and name and return their ID
-module.exports.insertUserDataIntoSignaturesTable = (userID, signature) => {
+module.exports.updateSignature = (userID, signature) => {
     const q = `INSERT INTO signatures (user_id, signature)
                 VALUES ($1, $2)`;
     const params = [userID, signature];
@@ -38,7 +35,7 @@ module.exports.insertUserDataIntoSignaturesTable = (userID, signature) => {
 };
 
 // INSERT the user's data in users table
-module.exports.insertUserDataIntoUsersTable = (
+module.exports.updateUserData = (
     firstName,
     lastName,
     emailAddress,
@@ -50,25 +47,24 @@ module.exports.insertUserDataIntoUsersTable = (
     return db.query(q, params);
 };
 
-module.exports.selectAllUserDataFromUsersTable = (email) => {
-    const q = `SELECT * FROM users WHERE email=$1`;
+module.exports.getUserData = (email) => {
+    const q = `SELECT users.id, users.email, users.password, signatures.user_id 
+                FROM users
+                JOIN signatures
+                ON users.id = signatures.user_id
+                WHERE email=$1`;
     const params = [email];
     return db.query(q, params);
 };
 
-module.exports.insertProfileInfoIntoUserProfileTable = (
-    userAge,
-    userCity,
-    userURL,
-    userID
-) => {
+module.exports.updateUserProfile = (userAge, userCity, userURL, userID) => {
     const q = `INSERT INTO user_profiles (age, city, url, user_id) 
                 VALUES ($1, $2, $3, $4)`;
     const params = [userAge, userCity, userURL, userID];
     return db.query(q, params);
 };
 
-module.exports.getListOfSigners = () => {
+module.exports.getAllSigners = () => {
     const q = `SELECT signatures.user_id, users.first, users.last, user_profiles.age, user_profiles.city, user_profiles.url
                 FROM signatures
                 JOIN users
@@ -78,7 +74,7 @@ module.exports.getListOfSigners = () => {
     return db.query(q);
 };
 
-module.exports.getListOfSignersFromCertainCity = (city) => {
+module.exports.getAllSignersFromCity = (city) => {
     const q = `SELECT signatures.user_id, users.first, users.last, user_profiles.age, user_profiles.city, user_profiles.url
                 FROM signatures
                 JOIN users
@@ -89,9 +85,3 @@ module.exports.getListOfSignersFromCertainCity = (city) => {
     const params = [city];
     return db.query(q, params);
 };
-
-// NEW QUERIES
-
-// A new query that is exactly like the one to get the signers but has in addition a WHERE clause that limits to a certain city. You can make the query case insensitive by using the SQL LOWER function (e.g., WHERE LOWER(city) = LOWER($1)).
-
-// Change the query to get user information by email address so that it joins the signatures table and gets the signature id for the user if the user has signed
