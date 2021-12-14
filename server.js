@@ -7,6 +7,9 @@ const {
     insertUserDataIntoSignaturesTable,
     insertUserDataIntoUsersTable,
     selectAllUserDataFromUsersTable,
+    insertProfileInfoIntoUserProfileTable,
+    getListOfSigners,
+    getListOfSignersFromCertainCity,
 } = require("./db");
 const { engine } = require("express-handlebars");
 const cookieSession = require("cookie-session");
@@ -54,60 +57,56 @@ app.post("/registration", (req, res) => {
         })
         .then((userData) => {
             cookie.userId = userData.rows[0].id;
-            res.redirect("/login");
+            res.redirect("/profile");
         })
         .catch((err) => {
             console.log("Error in registration", err);
-            res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
-        });
-});
-
-app.get("/login", (req, res) => {
-    res.render("login", {});
-});
-
-app.post("/login", (req, res) => {
-    const data = req.body;
-    const cookie = req.session;
-    selectAllUserDataFromUsersTable(data.email)
-        .then((userData) => {
-            bc.compare(data.password, userData.rows[0].password).then(
-                (match) => {
-                    console.log("Match: ", match);
-                    if (match) {
-                        cookie.userId = userData.rows[0].id;
-                        console.log("first LOG:", userData);
-                        selectAllUserDataFromSignaturesTable(cookie.userId)
-                            .then((userData) => {
-                                console.log("Second LOG:", userData);
-                                if (
-                                    userData.rowCount === 1 &&
-                                    userData.rows[0].user_id === cookie.userId
-                                ) {
-                                    cookie.sigId = true;
-                                    res.redirect("/thanks");
-                                } else {
-                                    res.redirect("/petition");
-                                }
-                            })
-                            .catch((err) => console.log(err));
-                    } else {
-                        res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
-                    }
-                }
+            res.send(
+                "Error in registration - HIER MUSS NOCH EINE ERROR PAGE REIN"
             );
-        })
-        .catch((err) => {
-            console.log(err);
-            res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
         });
+});
+
+app.get("/profile", (req, res) => {
+    res.render("profile", {});
+});
+
+app.post("/profile", (req, res) => {
+    const { age, city, url } = req.body;
+    const { userId } = req.session;
+    if (age.length !== 0 || city.length !== 0 || url.length !== 0) {
+        if (
+            url.startsWith("http:") ||
+            url.startsWith("https:") ||
+            url.startsWith("//") ||
+            url === ""
+        ) {
+            insertProfileInfoIntoUserProfileTable(age, city, url, userId)
+                .then(() => res.redirect("/petition"))
+                .catch((err) => {
+                    console.log(err);
+                    res.render("profile", {
+                        // error message needed
+                    });
+                });
+        } else {
+            res.redirect("/petition");
+        }
+    } else {
+        res.redirect("/petition");
+    }
 });
 
 app.get("/petition", (req, res) => {
-    if (req.session.sigId) {
-        res.redirect("/thanks");
+    const cookie = req.session;
+    if (cookie.userId) {
+        if (cookie.sigId) {
+            res.redirect("/thanks");
+        } else {
+            res.render("petition");
+        }
     } else {
-        res.render("petition");
+        res.redirect("/registration");
     }
 });
 
@@ -115,8 +114,7 @@ app.post("/petition", (req, res) => {
     const data = req.body;
     const cookie = req.session;
     insertUserDataIntoSignaturesTable(cookie.userId, data.signature)
-        .then((newUser) => {
-            cookie.signatureId = newUser.rows[0].id;
+        .then(() => {
             cookie.sigId = true;
             res.redirect("/thanks");
         })
@@ -154,7 +152,7 @@ app.get("/thanks", (req, res) => {
 app.get("/signers", (req, res) => {
     const cookie = req.session;
     if (cookie.sigId) {
-        selectAllUserDataFromSignaturesTable()
+        getListOfSigners()
             .then((userData) => {
                 const signers = userData.rows;
                 res.render("signers", {
@@ -165,6 +163,62 @@ app.get("/signers", (req, res) => {
     } else {
         res.redirect("/registration");
     }
+});
+
+app.get("/signers/:city", (req, res) => {
+    const { city } = req.params;
+    const cookie = req.session;
+    if (cookie.sigId) {
+        getListOfSignersFromCertainCity(city).then((userData) => {
+            console.log(userData);
+            const signers = userData.rows;
+            res.render("signers", {
+                signers,
+            });
+        });
+    } else {
+        res.redirect("/login");
+    }
+});
+
+app.get("/login", (req, res) => {
+    res.render("login", {});
+});
+
+app.post("/login", (req, res) => {
+    // POST /login - If you are doing a final query to find the logged-in user's signature id, you can stop doing that and get it with the query to get their user id and password
+    const data = req.body;
+    const cookie = req.session;
+    selectAllUserDataFromUsersTable(data.email)
+        .then((userData) => {
+            bc.compare(data.password, userData.rows[0].password).then(
+                (match) => {
+                    console.log("Match: ", match);
+                    if (match) {
+                        cookie.userId = userData.rows[0].id;
+                        selectAllUserDataFromSignaturesTable(cookie.userId)
+                            .then((userData) => {
+                                if (
+                                    userData.rowCount === 1 &&
+                                    userData.rows[0].user_id === cookie.userId
+                                ) {
+                                    cookie.sigId = true;
+                                    res.redirect("/thanks");
+                                } else {
+                                    res.redirect("/petition");
+                                }
+                            })
+                            .catch((err) => console.log(err));
+                    } else {
+                        res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
+                    }
+                }
+            );
+        })
+        .catch((err) => {
+            console.log(err);
+            res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
+        });
 });
 
 app.get("*", (req, res) => {
