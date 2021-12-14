@@ -73,6 +73,7 @@ app.post("/login", (req, res) => {
         .then((userData) => {
             bc.compare(data.password, userData.rows[0].password).then(
                 (match) => {
+                    console.log("Match: ", match);
                     if (match) {
                         cookie.userId = userData.rows[0].id;
                         console.log("first LOG:", userData);
@@ -96,7 +97,10 @@ app.post("/login", (req, res) => {
                 }
             );
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+            console.log(err);
+            res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
+        });
 });
 
 app.get("/petition", (req, res) => {
