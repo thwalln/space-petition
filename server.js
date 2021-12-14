@@ -145,7 +145,10 @@ app.get("/signers", (req, res) => {
     if (cookie.sigId) {
         getAllSigners()
             .then((userData) => {
-                const signers = userData.rows;
+                const signers = userData.rows.map((row) => {
+                    return { ...row, showLink: row.url !== "" };
+                });
+                console.log(signers);
                 res.render("signers", {
                     signers,
                     displayCity: true,

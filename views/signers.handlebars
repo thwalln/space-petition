@@ -1,32 +1,34 @@
-{{! signers.handlebars - for each signer, show the age and city (if they exist) and if the url exists, link up the name (make sure the url does not run Javascript code). Cities, when shown, should link to a new url }}
+<h1>Signers Page</h1>
+{{#if city}}
+    Please find below all signers from
+    {{this.city}}
+{{/if}}
 
-<main>
-
-    <h1>Signers Page</h1>
-    {{#if city}}
-        Please find below all signers from
-        {{this.city}}
+<ul>
+    {{#if displayCity}}
+        {{#signers}}
+            <li>
+                {{#if this.showLink}}
+                    <a href="{{this.url}}" target="_blank">{{this.first}}
+                        {{this.last}}</a>,
+                {{else}}
+                    <span>{{this.first}} {{this.last}}</span>
+                {{/if}}
+                <span> age {{this.age}}, from</span>
+                <a href="/signers/{{this.city}}">{{this.city}}</a>
+            </li>
+        {{/signers}}
+    {{else}}
+        {{#signers}}
+            <li>
+                {{#if this.showLink}}
+                    <a href="{{this.url}}" target="_blank">{{this.first}}
+                        {{this.last}}</a>
+                {{else}}
+                    <span>{{this.first}} {{this.last}},</span>
+                {{/if}}
+                <span> age {{this.age}}</span>
+            </li>
+        {{/signers}}
     {{/if}}
-
-    <ul>
-        {{#if displayCity}}
-            {{#signers}}
-                <li>
-                    <a href="{{this.url}}" target="_blank">{{this.first}}
-                        {{this.last}}</a>
-                    {{this.age}}
-                    <a href="/signers/{{this.city}}">{{this.city}}</a>
-                </li>
-            {{/signers}}
-        {{else}}
-            {{#signers}}
-                <li>
-                    <a href="{{this.url}}" target="_blank">{{this.first}}
-                        {{this.last}}</a>
-                    {{this.age}}
-                </li>
-            {{/signers}}
-        {{/if}}
-    </ul>
-
-</main>
+</ul>

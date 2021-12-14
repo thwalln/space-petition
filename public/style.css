@@ -1,14 +1,63 @@
 body {
-    background-color: #eee;
-    display: flex;
-    justify-content: center;
+    margin: 0;
     height: 100vh;
+    background-color: #a458fb;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+main {
+    padding-top: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+label {
+    width: 105px;
+}
+
+#first,
+#last,
+#email,
+#password {
+    padding-left: 5px;
 }
 
 canvas {
     border: solid black 2px;
 }
 
-main {
-    padding-top: 200px;
+header {
+    position: fixed;
+    color: black;
+    height: 80px;
+    width: 100%;
+    z-index: 1;
+    background-color: #fbd058;
+}
+
+header img {
+    width: 60px;
+    height: 60px;
+}
+
+#header {
+    display: flex;
+    justify-content: left;
+    gap: 50px;
+}
+
+ul {
+    list-style-image: url(/assets/bee_black.svg);
+}
+
+a {
+    color: #fbd058;
+}
+
+a:hover {
+    color: #fbd058;
+    font-weight: bold;
 }
