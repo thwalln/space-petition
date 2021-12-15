@@ -12,6 +12,7 @@ const {
     getUserProfileData,
     updateUsers,
     upsertUserProfiles,
+    updateUsersAndPassword,
 } = require("./db");
 const { engine } = require("express-handlebars");
 const cookieSession = require("cookie-session");
@@ -204,7 +205,7 @@ app.post("/login", (req, res) => {
                             userData.rowCount === 1 &&
                             userData.rows[0].user_id === cookie.userId
                         ) {
-                            cookie.sigId = true;
+                            // cookie.sigId = true; DAS NOCH ANPASSEN
                             res.redirect("/thanks");
                         } else {
                             res.redirect("/petition");
@@ -235,9 +236,6 @@ app.get("/profile/edit", (req, res) => {
     }
 });
 
-// We are going to update all the fields, even if the user hasn't changed them
-//////// The password however, WON'T be pre-populated
-
 app.post("/profile/edit", (req, res) => {
     const data = req.body;
     const cookie = req.session;
@@ -249,43 +247,34 @@ app.post("/profile/edit", (req, res) => {
                     data.city,
                     data.url,
                     cookie.userId
-                ).then(() => res.redirect("/login"));
+                ).then(() => res.redirect("/petition"));
             })
             .catch((err) => {
-                res.send("THIS IS NOT WORKING");
                 console.log(err);
+                res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
             });
-
-        // () =>
-        //     upsertUserProfiles(
-        //         data.age,
-        //         data.city,
-        //         data.url,
-        //         cookie.userId
-        //     ).then(() => res.redirect("/petition"))
-        // )
-        // .catch((err) => {
-        //     console.log(err);
-        //     res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
-        // });
-
-        // If this is successful: redirect the user to an appropriate page
-        // If there is an error: re-render the page with an appropriate error message
-        // Refer to login and registration for an example
     } else {
-        req.body.password; // hashen
-        // user has updated their password
-        // Insgesamt zwei Queries, eine die drei values updated und eine die vier updated (inkl. Passwort)
-        // we should update the db with new value
-        // hier müssen wir das PW wieder prüfen und hashen
-        // redirect user back to thank you page
-
-        // Second block:
-        // If password WAS updated you need to first of all HASH it, just like in the registration route
-        // UPDATE to the users table: first, last, email, password
-        // Then, as above, you are going to need to make an UPSERT to the user_profile table
-        // If everything goes to plan, redirect exactly as above
-        // If there is an error, render the page again with an error message
+        bc.hash(data.password)
+            .then((hashedPw) => {
+                updateUsersAndPassword(
+                    data.first,
+                    data.last,
+                    data.email,
+                    hashedPw,
+                    cookie.userId
+                ).then(() => {
+                    upsertUserProfiles(
+                        data.age,
+                        data.city,
+                        data.url,
+                        cookie.userId
+                    ).then(() => res.redirect("/petition"));
+                });
+            })
+            .catch((err) => {
+                console.log(err);
+                res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
+            });
     }
 });
 

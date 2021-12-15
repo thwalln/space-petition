@@ -51,7 +51,7 @@ module.exports.updateUserData = (
 module.exports.getUserData = (email) => {
     const q = `SELECT users.id, users.email, users.password, signatures.user_id 
                 FROM users
-                JOIN signatures
+                LEFT JOIN signatures
                 ON users.id = signatures.user_id
                 WHERE email=$1`;
     const params = [email];
@@ -105,6 +105,23 @@ module.exports.updateUsers = (firstName, lastName, email, userId) => {
                     email = $3
                 WHERE id = $4`;
     const params = [firstName, lastName, email, userId];
+    return db.query(q, params);
+};
+
+module.exports.updateUsersAndPassword = (
+    firstName,
+    lastName,
+    email,
+    password,
+    userId
+) => {
+    const q = `UPDATE users
+                SET first = $1,
+                    last = $2,
+                    email = $3,
+                    password = $4
+                WHERE id = $5`;
+    const params = [firstName, lastName, email, password, userId];
     return db.query(q, params);
 };
 
