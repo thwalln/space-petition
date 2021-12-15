@@ -13,6 +13,7 @@ const {
     updateUsers,
     upsertUserProfiles,
     updateUsersAndPassword,
+    deleteSignature,
 } = require("./db");
 const { engine } = require("express-handlebars");
 const cookieSession = require("cookie-session");
@@ -172,6 +173,19 @@ app.get("/signers", (req, res) => {
     }
 });
 
+app.post("/signers", (req, res) => {
+    const cookie = req.session;
+    deleteSignature(cookie.userId)
+        .then(() => {
+            cookie.sigId = null;
+            res.redirect("/petition");
+        })
+        .catch((err) => {
+            console.log(err);
+            res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
+        });
+});
+
 app.get("/signers/:city", (req, res) => {
     const { city } = req.params;
     const cookie = req.session;
@@ -285,23 +299,3 @@ app.get("*", (req, res) => {
 app.listen(process.env.PORT || 8080, () => {
     console.log(`Petition server listening`);
 });
-
-/////////////////// New part
-
-// Part 3 - DELETE signature
-// On the thanks page, there should a link for the user to delete their signature
-
-// Something to note here is that we are doing something destructive to our database, so, by convention this shouldn't be a GET request.
-// Instead, we are going to use a POST request
-// BUT, this isn't possible with an ANCHOR tag
-// A good solution, would be a button inside a form tag
-// method="POST"
-// On the server, it will receive a request and delete the signature from the signatures table
-// This can be done with a DELETE query
-// After deleting the row from the table
-// Set signed/sigId cookie from the cookie object value to be null
-// Redirect the user back to the petition
-
-// /// dann noch irgendwo ein Feature einbauen, wo die Unterschrift gelöscht werden soll
-// // für die Deletion sollen wir einen Post Request machen (Wird eine einfache DELETE FROM signatures WHERE userID = XY)
-// // Form Tag machen und als Action die URL reinschreiben auf die wir directen wollen;

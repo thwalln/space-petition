@@ -133,3 +133,9 @@ module.exports.upsertUserProfiles = (userAge, userCity, userURL, userID) => {
     const params = [userAge, userCity, userURL, userID];
     return db.query(q, params);
 };
+
+module.exports.deleteSignature = (userID) => {
+    const q = `DELETE FROM signatures WHERE user_id = $1`;
+    const params = [userID];
+    return db.query(q, params);
+};
