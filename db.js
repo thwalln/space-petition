@@ -97,14 +97,22 @@ module.exports.getUserProfileData = (userId) => {
     return db.query(q, params);
 };
 
-module.exports.upsertOne = () => {
-    const q = ``;
-    const params = [];
+// UPDATE users table: first, last, email
+module.exports.updateUsers = (firstName, lastName, email, userId) => {
+    const q = `UPDATE users
+                SET first = $1,
+                    last = $2,
+                    email = $3
+                WHERE id = $4`;
+    const params = [firstName, lastName, email, userId];
     return db.query(q, params);
 };
 
-module.exports.upsert2 = () => {
-    const q = ``;
-    const params = [];
+module.exports.upsertUserProfiles = (userAge, userCity, userURL, userID) => {
+    const q = `INSERT INTO user_profiles (age, city, url, user_id)
+                VALUES ($1, $2, $3, $4)
+                ON CONFLICT (user_id)
+                DO UPDATE SET age = $1, city = $2, url = $3, user_id = $4`;
+    const params = [userAge, userCity, userURL, userID];
     return db.query(q, params);
 };

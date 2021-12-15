@@ -10,6 +10,8 @@ const {
     getAllSigners,
     getAllSignersFromCity,
     getUserProfileData,
+    updateUsers,
+    upsertUserProfiles,
 } = require("./db");
 const { engine } = require("express-handlebars");
 const cookieSession = require("cookie-session");
@@ -236,29 +238,37 @@ app.get("/profile/edit", (req, res) => {
 // We are going to update all the fields, even if the user hasn't changed them
 //////// The password however, WON'T be pre-populated
 
-// Second block:
-// If password WAS updated you need to first of all HASH it, just like in the registration route
-// UPDATE to the users table: first, last, email, password
-// Then, as above, you are going to need to make an UPSERT to the user_profile table
-// If everything goes to plan, redirect exactly as above
-// If there is an error, render the page again with an error message
 app.post("/profile/edit", (req, res) => {
-    if (!req.body.password) {
-        // user has left their password as it is
-        // we should leave the value in the DB as it is
-        // hier zwei Upsert Queries machen
-        // First Block (user has NOT updated their password)
-        //////// We need to update TWO tables
-        //////// UPDATE users table: first, last, email
-        //////// UPDATE user_profiles table: age, city, url (if row in table exists)
-        //////// We need 2 separate queries for this as there is no UPDATE JOIN
-        // ALSO: we need to consider that the user might have skipped the profile page without filling it in.
-        // In this case, they won't have a row to update in this table and this will cause an error
-        // SOLUTION: We need to first of all check if they have a row
-        // If they don't, create one
-        // If they do, update it
-        // This is called an UPSERT and it looks like this
-        // The potential conflict column here will be the user_id, you need to make sure it has a UNIQUE constraint on it
+    const data = req.body;
+    const cookie = req.session;
+    if (!data.password) {
+        updateUsers(data.first, data.last, data.email, cookie.userId)
+            .then(() => {
+                upsertUserProfiles(
+                    data.age,
+                    data.city,
+                    data.url,
+                    cookie.userId
+                ).then(() => res.redirect("/login"));
+            })
+            .catch((err) => {
+                res.send("THIS IS NOT WORKING");
+                console.log(err);
+            });
+
+        // () =>
+        //     upsertUserProfiles(
+        //         data.age,
+        //         data.city,
+        //         data.url,
+        //         cookie.userId
+        //     ).then(() => res.redirect("/petition"))
+        // )
+        // .catch((err) => {
+        //     console.log(err);
+        //     res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
+        // });
+
         // If this is successful: redirect the user to an appropriate page
         // If there is an error: re-render the page with an appropriate error message
         // Refer to login and registration for an example
@@ -269,6 +279,13 @@ app.post("/profile/edit", (req, res) => {
         // we should update the db with new value
         // hier müssen wir das PW wieder prüfen und hashen
         // redirect user back to thank you page
+
+        // Second block:
+        // If password WAS updated you need to first of all HASH it, just like in the registration route
+        // UPDATE to the users table: first, last, email, password
+        // Then, as above, you are going to need to make an UPSERT to the user_profile table
+        // If everything goes to plan, redirect exactly as above
+        // If there is an error, render the page again with an error message
     }
 });
 
