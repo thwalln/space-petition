@@ -11,7 +11,8 @@ const password = "postgres";
 
 // Let's create our line of communication to the database
 const db = spicedPg(
-    `postgres:${username}:${password}@localhost:5432/${database}`
+    process.env.DATABASE_URL ||
+        `postgres:${username}:${password}@localhost:5432/${database}`
 );
 
 console.log(`[db] connecting to:${database}`);
@@ -86,8 +87,6 @@ module.exports.getAllSignersFromCity = (city) => {
     return db.query(q, params);
 };
 
-// PART 5 QUERIES
-// Die erste braucht Daten vom users und user-profile table
 module.exports.getUserProfileData = (userId) => {
     const q = `SELECT users.id, users.first, users.last, users.email, user_profiles.age, user_profiles.city, user_profiles.url, user_profiles.user_id
                 FROM users
@@ -95,5 +94,17 @@ module.exports.getUserProfileData = (userId) => {
                 ON users.id = user_profiles.user_id
                 WHERE users.id = $1`;
     const params = [userId];
+    return db.query(q, params);
+};
+
+module.exports.upsertOne = () => {
+    const q = ``;
+    const params = [];
+    return db.query(q, params);
+};
+
+module.exports.upsert2 = () => {
+    const q = ``;
+    const params = [];
     return db.query(q, params);
 };
