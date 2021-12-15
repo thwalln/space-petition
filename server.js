@@ -154,6 +154,19 @@ app.get("/thanks", (req, res) => {
     }
 });
 
+app.post("/thanks/delete", (req, res) => {
+    const cookie = req.session;
+    deleteSignature(cookie.userId)
+        .then(() => {
+            cookie.sigId = null;
+            res.redirect("/petition");
+        })
+        .catch((err) => {
+            console.log(err);
+            res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
+        });
+});
+
 app.get("/signers", (req, res) => {
     const cookie = req.session;
     if (cookie.sigId) {
@@ -171,19 +184,6 @@ app.get("/signers", (req, res) => {
     } else {
         res.redirect("/registration");
     }
-});
-
-app.post("/signers", (req, res) => {
-    const cookie = req.session;
-    deleteSignature(cookie.userId)
-        .then(() => {
-            cookie.sigId = null;
-            res.redirect("/petition");
-        })
-        .catch((err) => {
-            console.log(err);
-            res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
-        });
 });
 
 app.get("/signers/:city", (req, res) => {
@@ -293,7 +293,7 @@ app.post("/profile/edit", (req, res) => {
 });
 
 app.get("*", (req, res) => {
-    res.redirect("/registration");
+    res.redirect("/login");
 });
 
 app.listen(process.env.PORT || 8080, () => {
