@@ -1,6 +1,5 @@
 const express = require("express");
 const app = express();
-const PORT = 8080;
 const {
     getSignatureData,
     getSignatureCount,
@@ -14,7 +13,6 @@ const {
 } = require("./db");
 const { engine } = require("express-handlebars");
 const cookieSession = require("cookie-session");
-const secrets = require("./secrets.json");
 const bc = require("./bc");
 
 ///////////////////////////////////////////// EXPRESS HANDLEBARS  ////////////////////////////////////
@@ -37,7 +35,9 @@ app.use(express.static("./public"))
     .use(express.urlencoded({ extended: false }))
     .use(
         cookieSession({
-            secret: process.env.COOKIE_SECRET || secrets.COOKIE_SECRET,
+            secret:
+                process.env.COOKIE_SECRET ||
+                require("./secrets.json").COOKIE_SECRET,
             maxAge: 1000 * 60 * 60 * 24 * 14,
             sameSite: true,
         })
@@ -276,8 +276,8 @@ app.get("*", (req, res) => {
     res.redirect("/registration");
 });
 
-app.listen(process.env.PORT || PORT, () => {
-    console.log(`Petition server listening on port ${PORT}`);
+app.listen(process.env.PORT || 8080, () => {
+    console.log(`Petition server listening`);
 });
 
 /////////////////// New part
