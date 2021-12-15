@@ -85,3 +85,15 @@ module.exports.getAllSignersFromCity = (city) => {
     const params = [city];
     return db.query(q, params);
 };
+
+// PART 5 QUERIES
+// Die erste braucht Daten vom users und user-profile table
+module.exports.getUserProfileData = (userId) => {
+    const q = `SELECT users.id, users.first, users.last, users.email, user_profiles.age, user_profiles.city, user_profiles.url, user_profiles.user_id
+                FROM users
+                JOIN user_profiles
+                ON users.id = user_profiles.user_id
+                WHERE users.id = $1`;
+    const params = [userId];
+    return db.query(q, params);
+};
