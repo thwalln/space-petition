@@ -23,6 +23,7 @@ const {
     postProfileInformation,
     getUserProfile,
     updateUserProfiles,
+    getUserPage,
 } = require("./middleware/profile_functions");
 
 ///////////////////////////////////////////// EXPRESS HANDLEBARS  ////////////////////////////////////
@@ -69,7 +70,7 @@ app.get("/login", checkIfUserIsLoggedIn, (req, res) => res.render("login", {}));
 
 app.post("/login", comparePw);
 
-app.get("/profile", (req, res) => res.render("profile", {}));
+app.get("/profile", getUserPage);
 
 app.post("/profile", postProfileInformation);
 

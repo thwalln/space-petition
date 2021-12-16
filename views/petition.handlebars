@@ -8,8 +8,13 @@
     </form>
 
     {{#if error}}
-        <p>ERROR!!!!!!</p>
+        <p>Something went wrong, please try again</p>
     {{/if}}
+
+    {{#if emptySignature}}
+        <p>Emtpy signature. Please sign with your mouse to proceed</p>
+    {{/if}}
+
 </main>
 
 <script src="../public/script.js"></script>

@@ -4,8 +4,19 @@ const {
     updateUsers,
     upsertUserProfiles,
     updateUsersAndPassword,
+    onlyGetUserProfileData,
 } = require("../db");
 const { hash } = require("../bc");
+
+const getUserPage = (req, res) => {
+    onlyGetUserProfileData(req.session.userId).then((data) => {
+        if (data.rows.length === 0) {
+            res.render("profile", {});
+        } else {
+            res.redirect("/profile/edit");
+        }
+    });
+};
 
 const postProfileInformation = (req, res) => {
     let { age, city, url } = req.body;
@@ -60,9 +71,19 @@ const updateUserProfiles = (req, res) => {
                 if (url === "") {
                     url = null;
                 }
-                upsertUserProfiles(age, city, url, userId).then(() =>
-                    res.redirect("/petition")
-                );
+                if (
+                    url === null ||
+                    url.startsWith("http:") ||
+                    url.startsWith("https:") ||
+                    url.startsWith("//") ||
+                    url === ""
+                ) {
+                    upsertUserProfiles(age, city, url, userId).then(() =>
+                        res.redirect("/petition")
+                    );
+                } else {
+                    res.send("ERROR");
+                }
             })
             .catch((err) => {
                 console.log(err);
@@ -87,9 +108,19 @@ const updateUserProfiles = (req, res) => {
                     if (url === "") {
                         url = null;
                     }
-                    upsertUserProfiles(age, city, url, userId).then(() =>
-                        res.redirect("/petition")
-                    );
+                    if (
+                        url === null ||
+                        url.startsWith("http:") ||
+                        url.startsWith("https:") ||
+                        url.startsWith("//") ||
+                        url === ""
+                    ) {
+                        upsertUserProfiles(age, city, url, userId).then(() =>
+                            res.redirect("/petition")
+                        );
+                    } else {
+                        res.send("ERROR");
+                    }
                 });
             })
             .catch((err) => {
@@ -103,4 +134,5 @@ module.exports = {
     postProfileInformation,
     getUserProfile,
     updateUserProfiles,
+    getUserPage,
 };

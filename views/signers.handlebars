@@ -8,26 +8,22 @@
     {{#if displayCity}}
         {{#signers}}
             <li>
-                {{#if this.showLink}}
+                {{#if this.url}}
                     <a href="{{this.url}}" target="_blank">{{this.first}}
-                        {{this.last}}</a>,
-                {{else}}
-                    <span>{{this.first}} {{this.last}}</span>
-                {{/if}}
-                <span> age {{this.age}}, from</span>
-                <a href="/signers/{{this.city}}">{{this.city}}</a>
+                        {{this.last}}</a>{{else}}<span>{{this.first}}
+                        {{this.last}}</span>{{/if}}{{#if this.age}}<span>, age
+                        {{this.age}}</span>{{/if}}{{#if this.city}}<span>, from</span>
+                    <a href="/signers/{{this.city}}">{{this.city}}</a>{{/if}}
             </li>
         {{/signers}}
     {{else}}
         {{#signers}}
             <li>
-                {{#if this.showLink}}
+                {{#if this.url}}
                     <a href="{{this.url}}" target="_blank">{{this.first}}
-                        {{this.last}}</a>
-                {{else}}
-                    <span>{{this.first}} {{this.last}},</span>
-                {{/if}}
-                <span> age {{this.age}}</span>
+                        {{this.last}}</a>{{else}}<span>{{this.first}}
+                        {{this.last}}</span>{{/if}}{{#if this.age}}<span>, age
+                        {{this.age}}</span>{{/if}}
             </li>
         {{/signers}}
     {{/if}}

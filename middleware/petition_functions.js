@@ -10,20 +10,18 @@ const postSignature = (req, res) => {
                 res.redirect("/thanks");
             })
             .catch((err) => {
-                console.log("err inserting new user in db", err);
+                console.log(err);
                 res.render("petition", { error: true });
             });
     } else {
-        res.send(
-            "ERROR leere Unterschrift ---> Hier einfach nochmal die Petition Page mit einem entsprechenden ERROR posten"
-        );
+        res.render("petition", { emptySignature: true });
     }
 };
 
 const displayPetitionPage = (req, res) => {
-    const cookie = req.session;
-    if (cookie.userId) {
-        if (cookie.sigId) {
+    const { userId, sigId } = req.session;
+    if (userId) {
+        if (sigId) {
             res.redirect("/thanks");
         } else {
             res.render("petition");

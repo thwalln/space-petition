@@ -70,7 +70,7 @@ module.exports.getAllSigners = () => {
                 FROM signatures
                 JOIN users
                 ON signatures.user_id = users.id
-                JOIN user_profiles
+                LEFT JOIN user_profiles
                 ON signatures.user_id = user_profiles.user_id`;
     return db.query(q);
 };
@@ -137,5 +137,11 @@ module.exports.upsertUserProfiles = (userAge, userCity, userURL, userID) => {
 module.exports.deleteSignature = (userID) => {
     const q = `DELETE FROM signatures WHERE user_id = $1`;
     const params = [userID];
+    return db.query(q, params);
+};
+
+module.exports.onlyGetUserProfileData = (userId) => {
+    const q = `SELECT * FROM user_profiles WHERE user_id = $1`;
+    const params = [userId];
     return db.query(q, params);
 };
