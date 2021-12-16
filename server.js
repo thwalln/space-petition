@@ -18,6 +18,7 @@ const {
 const { engine } = require("express-handlebars");
 const cookieSession = require("cookie-session");
 const bc = require("./bc");
+const { checkIfUserIsLoggedIn } = require("./middleware/auth");
 
 ///////////////////////////////////////////// EXPRESS HANDLEBARS  ////////////////////////////////////
 
@@ -54,9 +55,16 @@ app.use(express.static("./public"))
 ///////////////////////////////////////////// ROUTES /////////////////////////////////////////////
 
 ///////////////////////////////////////////// REGISTRATION
+////////////////////// What does this route do?
+/////////////////////////////// if user has userID cookie -> redirect to /petition
+/////////////////////////////// if user has no userID cookie -> display ("/registration") and post userData to db
 
-app.get("/registration", (req, res) => {
+app.get("/registration", checkIfUserIsLoggedIn, (req, res) => {
     res.render("registration", {});
+});
+
+app.get("/login", checkIfUserIsLoggedIn, (req, res) => {
+    res.render("login", {});
 });
 
 app.post("/registration", (req, res) => {
@@ -75,6 +83,50 @@ app.post("/registration", (req, res) => {
             res.send(
                 "Error in registration - <a href='/registration'>please try again</a>"
             );
+        });
+});
+
+///////////////////////////////////////////// LOGIN
+////////////////////// What does this route do?
+/////////////////////////////// if user has userID cookie -> redirect to /petition
+/////////////////////////////// if user has no userID cookie -> display ("/login") and post userData to db
+
+// app.get("/login", (req, res) => {
+//     const cookie = req.session;
+//     if (!cookie.userId) {
+//         res.render("login", {});
+//     } else {
+//         res.redirect("/petition");
+//     }
+// });
+
+app.post("/login", (req, res) => {
+    const data = req.body;
+    const cookie = req.session;
+    getUserData(data.email)
+        .then((userData) => {
+            bc.compare(data.password, userData.rows[0].password).then(
+                (match) => {
+                    if (match) {
+                        cookie.userId = userData.rows[0].id;
+                        if (
+                            userData.rowCount === 1 &&
+                            userData.rows[0].user_id === cookie.userId
+                        ) {
+                            // cookie.sigId = true; DAS NOCH ANPASSEN
+                            res.redirect("/thanks");
+                        } else {
+                            res.redirect("/petition");
+                        }
+                    } else {
+                        res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
+                    }
+                }
+            );
+        })
+        .catch((err) => {
+            console.log(err);
+            res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
         });
 });
 
@@ -268,45 +320,9 @@ app.get("/signers/:city", (req, res) => {
     }
 });
 
-///////////////////////////////////////////// LOGIN
-
-app.get("/login", (req, res) => {
-    res.render("login", {});
-});
-
-app.post("/login", (req, res) => {
-    const data = req.body;
-    const cookie = req.session;
-    getUserData(data.email)
-        .then((userData) => {
-            bc.compare(data.password, userData.rows[0].password).then(
-                (match) => {
-                    if (match) {
-                        cookie.userId = userData.rows[0].id;
-                        if (
-                            userData.rowCount === 1 &&
-                            userData.rows[0].user_id === cookie.userId
-                        ) {
-                            // cookie.sigId = true; DAS NOCH ANPASSEN
-                            res.redirect("/thanks");
-                        } else {
-                            res.redirect("/petition");
-                        }
-                    } else {
-                        res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
-                    }
-                }
-            );
-        })
-        .catch((err) => {
-            console.log(err);
-            res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
-        });
-});
-
 ///////////////////////////////////////////// STAR ROUTE
 
-app.get("*", (req, res) => {
+app.get("*", checkIfUserIsLoggedIn, (req, res) => {
     res.redirect("/login");
 });
 

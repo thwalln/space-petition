@@ -18,11 +18,8 @@ label {
     width: 105px;
 }
 
-#first,
-#last,
-#email,
-#password {
-    padding-left: 5px;
+input {
+    padding: 0px 5px;
 }
 
 canvas {
