@@ -90,7 +90,7 @@ module.exports.getAllSignersFromCity = (city) => {
 module.exports.getUserProfileData = (userId) => {
     const q = `SELECT users.id, users.first, users.last, users.email, user_profiles.age, user_profiles.city, user_profiles.url, user_profiles.user_id
                 FROM users
-                JOIN user_profiles
+                LEFT JOIN user_profiles
                 ON users.id = user_profiles.user_id
                 WHERE users.id = $1`;
     const params = [userId];

@@ -54,7 +54,7 @@ a {
     color: #fbd058;
 }
 
-a:hover {
+main a:hover {
     color: #fbd058;
     font-weight: bold;
 }

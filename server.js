@@ -1,24 +1,29 @@
 const express = require("express");
 const app = express();
-const {
-    getSignatureData,
-    getSignatureCount,
-    updateSignature,
-    updateUserData,
-    getUserData,
-    updateUserProfile,
-    getAllSigners,
-    getAllSignersFromCity,
-    getUserProfileData,
-    updateUsers,
-    upsertUserProfiles,
-    updateUsersAndPassword,
-    deleteSignature,
-} = require("./db");
 const { engine } = require("express-handlebars");
 const cookieSession = require("cookie-session");
-const bc = require("./bc");
-const { checkIfUserIsLoggedIn } = require("./middleware/auth");
+const {
+    checkIfUserIsLoggedIn,
+    checkSigIdAvailable,
+} = require("./middleware/auth");
+const { hashPw, comparePw } = require("./middleware/pw-check");
+const {
+    postSignature,
+    displayPetitionPage,
+} = require("./middleware/petition_functions");
+const {
+    getAllPetitionSigners,
+    getAllPetitionSignersByCity,
+} = require("./middleware/signers_functions");
+const {
+    getSigCountAndData,
+    deleteSig,
+} = require("./middleware/thanks_functions");
+const {
+    postProfileInformation,
+    getUserProfile,
+    updateUserProfiles,
+} = require("./middleware/profile_functions");
 
 ///////////////////////////////////////////// EXPRESS HANDLEBARS  ////////////////////////////////////
 
@@ -54,280 +59,53 @@ app.use(express.static("./public"))
 
 ///////////////////////////////////////////// ROUTES /////////////////////////////////////////////
 
-///////////////////////////////////////////// REGISTRATION
-////////////////////// What does this route do?
-/////////////////////////////// if user has userID cookie -> redirect to /petition
-/////////////////////////////// if user has no userID cookie -> display ("/registration") and post userData to db
+app.get("/registration", checkIfUserIsLoggedIn, (req, res) =>
+    res.render("registration", {})
+);
 
-app.get("/registration", checkIfUserIsLoggedIn, (req, res) => {
-    res.render("registration", {});
-});
+app.post("/registration", hashPw);
 
-app.get("/login", checkIfUserIsLoggedIn, (req, res) => {
-    res.render("login", {});
-});
+app.get("/login", checkIfUserIsLoggedIn, (req, res) => res.render("login", {}));
 
-app.post("/registration", (req, res) => {
-    const data = req.body;
-    const cookie = req.session;
-    bc.hash(data.password)
-        .then((hashedPw) => {
-            return updateUserData(data.first, data.last, data.email, hashedPw);
-        })
-        .then((userData) => {
-            cookie.userId = userData.rows[0].id;
-            res.redirect("/profile");
-        })
-        .catch((err) => {
-            console.log("Error in registration", err);
-            res.send(
-                "Error in registration - <a href='/registration'>please try again</a>"
-            );
-        });
-});
+app.post("/login", comparePw);
 
-///////////////////////////////////////////// LOGIN
-////////////////////// What does this route do?
-/////////////////////////////// if user has userID cookie -> redirect to /petition
-/////////////////////////////// if user has no userID cookie -> display ("/login") and post userData to db
+app.get("/profile", (req, res) => res.render("profile", {}));
 
-// app.get("/login", (req, res) => {
-//     const cookie = req.session;
-//     if (!cookie.userId) {
-//         res.render("login", {});
-//     } else {
-//         res.redirect("/petition");
-//     }
-// });
+app.post("/profile", postProfileInformation);
 
-app.post("/login", (req, res) => {
-    const data = req.body;
-    const cookie = req.session;
-    getUserData(data.email)
-        .then((userData) => {
-            bc.compare(data.password, userData.rows[0].password).then(
-                (match) => {
-                    if (match) {
-                        cookie.userId = userData.rows[0].id;
-                        if (
-                            userData.rowCount === 1 &&
-                            userData.rows[0].user_id === cookie.userId
-                        ) {
-                            // cookie.sigId = true; DAS NOCH ANPASSEN
-                            res.redirect("/thanks");
-                        } else {
-                            res.redirect("/petition");
-                        }
-                    } else {
-                        res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
-                    }
-                }
-            );
-        })
-        .catch((err) => {
-            console.log(err);
-            res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
-        });
-});
+app.get("/profile/edit", getUserProfile);
 
-///////////////////////////////////////////// PROFILE
+app.post("/profile/edit", updateUserProfiles);
 
-app.get("/profile", (req, res) => {
-    res.render("profile", {});
-});
+app.get("/petition", displayPetitionPage);
 
-app.post("/profile", (req, res) => {
-    const { age, city, url } = req.body;
-    const { userId } = req.session;
-    if (age.length !== 0 || city.length !== 0 || url.length !== 0) {
-        if (
-            url.startsWith("http:") ||
-            url.startsWith("https:") ||
-            url.startsWith("//") ||
-            url === ""
-        ) {
-            updateUserProfile(age, city, url, userId)
-                .then(() => res.redirect("/petition"))
-                .catch((err) => {
-                    console.log(err);
-                    res.redirect("/petition");
-                });
-        } else {
-            res.redirect("/petition");
-        }
-    } else {
-        res.redirect("/petition");
-    }
-});
+app.post("/petition", postSignature);
 
-app.get("/profile/edit", (req, res) => {
-    const cookie = req.session;
-    if (cookie.userId) {
-        getUserProfileData(cookie.userId)
-            .then((userData) => {
-                const userInfo = userData.rows[0];
-                res.render("edit-profile", { userInfo });
-            })
-            .catch((err) => console.log(err));
-    } else {
-        res.redirect("/login");
-    }
-});
+app.get("/thanks", checkSigIdAvailable, getSigCountAndData);
 
-app.post("/profile/edit", (req, res) => {
-    const data = req.body;
-    const cookie = req.session;
-    if (!data.password) {
-        updateUsers(data.first, data.last, data.email, cookie.userId)
-            .then(() => {
-                upsertUserProfiles(
-                    data.age,
-                    data.city,
-                    data.url,
-                    cookie.userId
-                ).then(() => res.redirect("/petition"));
-            })
-            .catch((err) => {
-                console.log(err);
-                res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
-            });
-    } else {
-        bc.hash(data.password)
-            .then((hashedPw) => {
-                updateUsersAndPassword(
-                    data.first,
-                    data.last,
-                    data.email,
-                    hashedPw,
-                    cookie.userId
-                ).then(() => {
-                    upsertUserProfiles(
-                        data.age,
-                        data.city,
-                        data.url,
-                        cookie.userId
-                    ).then(() => res.redirect("/petition"));
-                });
-            })
-            .catch((err) => {
-                console.log(err);
-                res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
-            });
-    }
-});
+app.post("/thanks/delete", deleteSig);
 
-///////////////////////////////////////////// PETITION
+app.get("/signers", checkSigIdAvailable, getAllPetitionSigners);
 
-app.get("/petition", (req, res) => {
-    const cookie = req.session;
-    if (cookie.userId) {
-        if (cookie.sigId) {
-            res.redirect("/thanks");
-        } else {
-            res.render("petition");
-        }
-    } else {
-        res.redirect("/registration");
-    }
-});
+app.get("/signers/:city", checkSigIdAvailable, getAllPetitionSignersByCity);
 
-app.post("/petition", (req, res) => {
-    const data = req.body;
-    const cookie = req.session;
-    updateSignature(cookie.userId, data.signature)
-        .then(() => {
-            cookie.sigId = true;
-            res.redirect("/thanks");
-        })
-        .catch((err) => {
-            console.log("err inserting new user in db", err);
-            res.render("petition", { error: true });
-        });
-});
-
-///////////////////////////////////////////// THANKS
-
-app.get("/thanks", (req, res) => {
-    const cookie = req.session;
-    if (cookie.sigId) {
-        getSignatureCount()
-            .then((userCount) => {
-                const count = userCount.rows[0].count;
-                return count;
-            })
-            .then((count) => {
-                getSignatureData(cookie.userId).then((userData) => {
-                    const userSignature = userData.rows[0].signature;
-                    res.render("thanks", {
-                        count,
-                        userSignature,
-                    });
-                });
-            })
-            .catch((err) => console.log(err));
-    } else {
-        res.redirect("/registration");
-    }
-});
-
-app.post("/thanks/delete", (req, res) => {
-    const cookie = req.session;
-    deleteSignature(cookie.userId)
-        .then(() => {
-            cookie.sigId = null;
-            res.redirect("/petition");
-        })
-        .catch((err) => {
-            console.log(err);
-            res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
-        });
-});
-
-///////////////////////////////////////////// SIGNERS
-
-app.get("/signers", (req, res) => {
-    const cookie = req.session;
-    if (cookie.sigId) {
-        getAllSigners()
-            .then((userData) => {
-                const signers = userData.rows.map((row) => {
-                    return { ...row, showLink: row.url !== "" };
-                });
-                res.render("signers", {
-                    signers,
-                    displayCity: true,
-                });
-            })
-            .catch((err) => console.log(err));
-    } else {
-        res.redirect("/registration");
-    }
-});
-
-app.get("/signers/:city", (req, res) => {
-    const { city } = req.params;
-    const cookie = req.session;
-    if (cookie.sigId) {
-        getAllSignersFromCity(city).then((userData) => {
-            const signers = userData.rows;
-            res.render("signers", {
-                signers,
-                city,
-            });
-        });
-    } else {
-        res.redirect("/login");
-    }
-});
-
-///////////////////////////////////////////// STAR ROUTE
-
-app.get("*", checkIfUserIsLoggedIn, (req, res) => {
+app.get("/logout", (req, res) => {
+    req.session.sigId = null;
+    req.session.userId = null;
     res.redirect("/login");
 });
 
+app.get("*", checkIfUserIsLoggedIn, (req, res) =>
+    res.redirect("/registration")
+);
+
 ///////////////////////////////////////////// FIRE UP SERVER
 
-app.listen(process.env.PORT || 8080, () => {
-    console.log(`Petition server listening`);
-});
+if (require.main == module) {
+    app.listen(process.env.PORT || 8080, () => {
+        console.log(`Petition server listening`);
+    });
+}
+
+// FOR SUPERTEST
+module.exports.app = app;

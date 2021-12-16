@@ -1,10 +1,11 @@
-// Hier kommen alle globalen auth Middleware Functions rein
+const checkIfUserIsLoggedIn = (req, res, next) =>
+    req.session.userId ? res.redirect("/petition") : next();
 
-const checkIfUserIsLoggedIn = (req, res, next) => {
-    if (req.session.userId) {
-        return res.redirect("/petition");
+const checkSigIdAvailable = (req, res, next) => {
+    if (!req.session.sigId) {
+        return res.redirect("/login");
     }
     next();
 };
 
-module.exports = { checkIfUserIsLoggedIn };
+module.exports = { checkIfUserIsLoggedIn, checkSigIdAvailable };
