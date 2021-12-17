@@ -11,10 +11,18 @@ const postSignature = (req, res) => {
             })
             .catch((err) => {
                 console.log(err);
-                res.render("petition", { error: true });
+                res.render("petition", {
+                    error: true,
+                    logout: true,
+                    profile: true,
+                });
             });
     } else {
-        res.render("petition", { emptySignature: true });
+        res.render("petition", {
+            emptySignature: true,
+            logout: true,
+            profile: true,
+        });
     }
 };
 
@@ -24,7 +32,7 @@ const displayPetitionPage = (req, res) => {
         if (sigId) {
             res.redirect("/thanks");
         } else {
-            res.render("petition");
+            res.render("petition", { logout: true, profile: true });
         }
     } else {
         res.redirect("/registration");

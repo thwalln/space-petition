@@ -1,5 +1,5 @@
 const { hash, compare } = require("../bc");
-const { updateUserData, getUserData } = require("../db");
+const { updateUserData, getUserData, getSignatureData } = require("../db");
 
 const hashPw = (req, res) => {
     const data = req.body;
@@ -28,20 +28,21 @@ const comparePw = (req, res) => {
             compare(data.password, userData.rows[0].password).then((match) => {
                 if (match) {
                     cookie.userId = userData.rows[0].id;
-                    // userData.rowCount === 1 &&
-                    // userData.rows[0].user_id === cookie.userId
-                    //     ? res.redirect("/thanks")
-                    //     : res.redirect("/petition");
-                    if (
-                        userData.rowCount === 1 &&
-                        userData.rows[0].user_id === cookie.userId
-                    ) {
-                        cookie.sigId = true;
-                        //DAS NOCH ANPASSEN UND DANN AUF TERNARY UMSTEIGEN
-                        res.redirect("/thanks");
-                    } else {
-                        res.redirect("/petition");
-                    }
+                    getSignatureData(cookie.userId)
+                        .then((data) => {
+                            console.log(data);
+                            if (
+                                userData.rowCount === 1 &&
+                                userData.rows[0].user_id === cookie.userId &&
+                                data.rows[0].signature.length >= 1048
+                            ) {
+                                cookie.sigId = true;
+                                res.redirect("/thanks");
+                            } else {
+                                res.redirect("/petition");
+                            }
+                        })
+                        .catch((err) => console.log(err));
                 } else {
                     res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
                 }

@@ -9,6 +9,8 @@ const getAllPetitionSigners = (req, res) => {
             res.render("signers", {
                 signers,
                 displayCity: true,
+                logout: true,
+                profile: true,
             });
         })
         .catch((err) => console.log(err));
@@ -22,6 +24,8 @@ const getAllPetitionSignersByCity = (req, res) => {
             res.render("signers", {
                 signers,
                 city,
+                logout: true,
+                profile: true,
             });
         })
         .catch((err) => console.log(err));

@@ -17,6 +17,8 @@ const getSigCountAndData = (req, res) => {
                 res.render("thanks", {
                     count,
                     userSignature,
+                    profile: true,
+                    logout: true,
                 });
             });
         })
