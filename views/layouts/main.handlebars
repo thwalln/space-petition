@@ -4,24 +4,34 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=, initial-scale=1.0" />
         <link rel="stylesheet" href="/style.css" />
-        <title>Bee Petition</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+            rel="stylesheet"
+        />
+        <title>Fly ESA to the moon</title>
     </head>
-    <header>
+
+    <body id="{{identifier}}">
         {{#if profile}}
-            <form action="/profile/edit">
-                <button>Edit Profile</button>
-            </form>
+            <header>
+                <form action="/profile/edit">
+                    <button>Edit Profile</button>
+                </form>
+                {{#if logout}}
+                    <form action="/logout">
+                        <button>Log out</button>
+                    </form>
+                {{/if}}
+            </header>
         {{/if}}
-        {{#if logout}}
-            <form action="/logout">
-                <button>Log out</button>
-            </form>
-        {{/if}}
-    </header>
-    <body>
         <main>
             {{{body}}}
         </main>
+        <footer>
+            <p>&copy; thwalln, 2021</p>
+        </footer>
     </body>
     <script src="/script.js"></script>
 </html>

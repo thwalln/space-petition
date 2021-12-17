@@ -1,30 +1,37 @@
-<h1>Signers Page</h1>
-{{#if city}}
-    Please find below all signers from
-    {{this.city}}
-{{/if}}
-
-<ul>
-    {{#if displayCity}}
-        {{#signers}}
-            <li>
-                {{#if this.url}}
-                    <a href="{{this.url}}" target="_blank">{{this.first}}
-                        {{this.last}}</a>{{else}}<span>{{this.first}}
-                        {{this.last}}</span>{{/if}}{{#if this.age}}<span>, age
-                        {{this.age}}</span>{{/if}}{{#if this.city}}<span>, from</span>
-                    <a href="/signers/{{this.city}}">{{this.city}}</a>{{/if}}
-            </li>
-        {{/signers}}
-    {{else}}
-        {{#signers}}
-            <li>
-                {{#if this.url}}
-                    <a href="{{this.url}}" target="_blank">{{this.first}}
-                        {{this.last}}</a>{{else}}<span>{{this.first}}
-                        {{this.last}}</span>{{/if}}{{#if this.age}}<span>, age
-                        {{this.age}}</span>{{/if}}
-            </li>
-        {{/signers}}
+<div>
+    <h1>Signers Page</h1>
+    {{#if city}}
+        Please find below all signers from
+        {{this.city}}
     {{/if}}
-</ul>
+
+    <ul>
+        {{#if displayCity}}
+            {{#signers}}
+                <li>
+                    {{#if this.url}}
+                        <a href="{{this.url}}" target="_blank">{{this.first}}
+                            {{this.last}}</a>{{else}}<span>{{this.first}}
+                            {{this.last}}</span>{{/if}}{{#if this.age}}<span>,
+                            age
+                            {{this.age}}</span>{{/if}}{{#if this.city}}<span>,
+                            from</span>
+                        <a
+                            href="/signers/{{this.city}}"
+                        >{{this.city}}</a>{{/if}}
+                </li>
+            {{/signers}}
+        {{else}}
+            {{#signers}}
+                <li>
+                    {{#if this.url}}
+                        <a href="{{this.url}}" target="_blank">{{this.first}}
+                            {{this.last}}</a>{{else}}<span>{{this.first}}
+                            {{this.last}}</span>{{/if}}{{#if this.age}}<span>,
+                            age
+                            {{this.age}}</span>{{/if}}
+                </li>
+            {{/signers}}
+        {{/if}}
+    </ul>
+</div>

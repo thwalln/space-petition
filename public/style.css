@@ -1,60 +1,163 @@
+* {
+    box-sizing: border-box;
+    font-family: "Open Sans", sans-serif;
+}
+
+html {
+    height: 100%;
+}
+
 body {
-    margin: 0;
-    height: 100vh;
-    background-color: #a458fb;
+    background-color: #000;
+    position: relative;
     color: white;
     font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    min-height: 100%;
+    align-items: center;
+    display: flex;
+}
+
+body::before {
+    z-index: -1;
+    content: "";
+    position: absolute;
+    opacity: 0.5;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image: url("./assets/jeremy-perkins-uhjiu8FjnsQ-unsplash.jpg");
+    background-size: contain;
+}
+
+body::after {
+    content: "";
+    background-image: url("./assets/mike-petrucci-uIf6H1or1nE-unsplash-1.png");
+    background-size: 500px;
+    background-repeat: no-repeat;
+    background-position: -200px -200px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
 }
 
 main {
-    padding-top: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    margin: 16px auto;
+    max-width: 400px;
+    width: 100%;
 }
 
-label {
-    width: 105px;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Major Mono Display", monospace;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+h1 {
+    font-size: 3rem;
+}
+
+p {
+    text-align: center;
+}
+
+form {
+    margin: 0;
+}
+
+form label {
+    font-size: 0.8rem;
+    padding-left: 8px;
+}
+
+button,
+a.button,
+input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
 }
 
 input {
-    padding: 0px 5px;
+    margin-bottom: 16px;
+}
+
+button,
+a.button {
+    text-transform: uppercase;
+    cursor: pointer;
+    background-color: #176fe5;
+    display: block;
+    color: white;
+    text-decoration: none;
+    margin-top: 16px;
+    border: none;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+button.secondary,
+a.button.secondary {
+    background-color: #36a420;
+}
+
+#login a.button,
+#registration a.button {
+    margin-top: 16px;
 }
 
 canvas {
-    border: solid black 2px;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 8px;
+}
+
+#petition main,
+#thanks main {
+    text-align: center;
 }
 
 header {
-    position: fixed;
-    color: black;
-    height: 80px;
-    width: 100%;
-    z-index: 1;
-    background-color: #fbd058;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    padding: 16px;
+    text-align: right;
 }
 
-header img {
-    width: 60px;
-    height: 60px;
+header form {
+    display: inline-block;
+    margin-left: 16px;
 }
 
-#header {
-    display: flex;
-    justify-content: left;
-    gap: 50px;
+header button,
+header .button {
+    margin-top: 0;
 }
 
-ul {
-    list-style-image: url(/assets/bee_black.svg);
+#thanks img {
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 8px;
 }
 
-a {
-    color: #fbd058;
+footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
-main a:hover {
-    color: #fbd058;
-    font-weight: bold;
+footer p {
+    text-align: left;
+    padding-left: 16px;
 }

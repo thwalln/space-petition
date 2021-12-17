@@ -61,12 +61,14 @@ app.use(express.static("./public"))
 ///////////////////////////////////////////// ROUTES /////////////////////////////////////////////
 
 app.get("/registration", checkIfUserIsLoggedIn, (req, res) =>
-    res.render("registration", {})
+    res.render("registration", { identifier: "registration" })
 );
 
 app.post("/registration", hashPw);
 
-app.get("/login", checkIfUserIsLoggedIn, (req, res) => res.render("login", {}));
+app.get("/login", checkIfUserIsLoggedIn, (req, res) =>
+    res.render("login", { identifier: "login" })
+);
 
 app.post("/login", comparePw);
 

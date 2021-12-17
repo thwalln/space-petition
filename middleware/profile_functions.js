@@ -11,7 +11,7 @@ const { hash } = require("../bc");
 const getUserPage = (req, res) => {
     onlyGetUserProfileData(req.session.userId).then((data) => {
         if (data.rows.length === 0) {
-            res.render("profile", { logout: true });
+            res.render("profile", { identifier: "profile" });
         } else {
             res.redirect("/profile/edit");
         }
@@ -52,6 +52,7 @@ const getUserProfile = (req, res) => {
                     userInfo,
                     logout: true,
                     profile: true,
+                    identifier: "edit-profile",
                 });
             })
             .catch((err) => console.log(err));

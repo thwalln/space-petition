@@ -19,6 +19,7 @@ const getSigCountAndData = (req, res) => {
                     userSignature,
                     profile: true,
                     logout: true,
+                    identifier: "thanks",
                 });
             });
         })

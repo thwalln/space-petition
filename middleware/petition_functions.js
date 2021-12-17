@@ -32,7 +32,11 @@ const displayPetitionPage = (req, res) => {
         if (sigId) {
             res.redirect("/thanks");
         } else {
-            res.render("petition", { logout: true, profile: true });
+            res.render("petition", {
+                logout: true,
+                profile: true,
+                identifier: "petition",
+            });
         }
     } else {
         res.redirect("/registration");

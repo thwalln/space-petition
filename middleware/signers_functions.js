@@ -11,6 +11,7 @@ const getAllPetitionSigners = (req, res) => {
                 displayCity: true,
                 logout: true,
                 profile: true,
+                identifier: "signers",
             });
         })
         .catch((err) => console.log(err));
@@ -26,6 +27,7 @@ const getAllPetitionSignersByCity = (req, res) => {
                 city,
                 logout: true,
                 profile: true,
+                identifier: "signers",
             });
         })
         .catch((err) => console.log(err));

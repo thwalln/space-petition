@@ -1,20 +1,19 @@
-<main>
-    <form action="" method="POST">
-        <div>
-            <input type="hidden" name="signature" id="signature" />
-            <canvas id="canv" width="400" height="75"></canvas>
-        </div>
-        <button>SUBMIT</button>
-    </form>
+<h1>Please sign below if you want the ESA to go to the moon!</h1>
 
-    {{#if error}}
-        <p>Something went wrong, please try again</p>
-    {{/if}}
+<form action="" method="POST">
 
-    {{#if emptySignature}}
-        <p>Emtpy signature. Please sign with your mouse to proceed</p>
-    {{/if}}
+    <input type="hidden" name="signature" id="signature" />
+    <canvas id="canv" width="400" height="120"></canvas>
 
-</main>
+    <button>Submit</button>
+</form>
+
+{{#if error}}
+    <p>Something went wrong, please try again</p>
+{{/if}}
+
+{{#if emptySignature}}
+    <p>Emtpy signature. Please sign with your mouse to proceed</p>
+{{/if}}
 
 <script src="../public/script.js"></script>
