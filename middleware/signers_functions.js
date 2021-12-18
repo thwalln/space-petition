@@ -11,10 +11,14 @@ const getAllPetitionSigners = (req, res) => {
                 displayCity: true,
                 logout: true,
                 profile: true,
+                thanks: true,
                 identifier: "signers",
             });
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+            console.log(err);
+            res.render("error");
+        });
 };
 
 const getAllPetitionSignersByCity = (req, res) => {
@@ -26,11 +30,15 @@ const getAllPetitionSignersByCity = (req, res) => {
                 signers,
                 city,
                 logout: true,
+                thanks: true,
                 profile: true,
                 identifier: "signers",
             });
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+            console.log(err);
+            res.render("error");
+        });
 };
 
 module.exports = { getAllPetitionSigners, getAllPetitionSignersByCity };

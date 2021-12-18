@@ -23,7 +23,10 @@ const getSigCountAndData = (req, res) => {
                 });
             });
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+            console.log(err);
+            res.render("error");
+        });
 };
 
 const deleteSig = (req, res) => {
@@ -35,7 +38,7 @@ const deleteSig = (req, res) => {
         })
         .catch((err) => {
             console.log(err);
-            res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
+            res.render("error");
         });
 };
 

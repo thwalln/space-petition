@@ -19,6 +19,12 @@
                 <form action="/profile/edit">
                     <button>Edit Profile</button>
                 </form>
+
+                {{#if thanks}}
+                    <form action="/thanks">
+                        <button>Home</button>
+                    </form>
+                {{/if}}
                 {{#if logout}}
                     <form action="/logout">
                         <button>Log out</button>

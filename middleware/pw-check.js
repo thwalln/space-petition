@@ -4,20 +4,32 @@ const { updateUserData, getUserData, getSignatureData } = require("../db");
 const hashPw = (req, res) => {
     const data = req.body;
     const cookie = req.session;
-    hash(data.password)
-        .then((hashedPw) => {
-            return updateUserData(data.first, data.last, data.email, hashedPw);
-        })
-        .then((userData) => {
-            cookie.userId = userData.rows[0].id;
-            return res.redirect("/profile");
-        })
-        .catch((err) => {
-            console.log("Error in registration", err);
-            return res.send(
-                "Error in registration - <a href='/registration'>please try again</a> ERRRRR PAGE NOCH MACHEN!!!"
-            );
-        });
+    if (
+        data.first.legnth === 0 ||
+        data.last.legnth === 0 ||
+        data.email.legnth === 0 ||
+        data.password.length === 0
+    ) {
+        res.render("error", { registration: true });
+    } else {
+        hash(data.password)
+            .then((hashedPw) => {
+                return updateUserData(
+                    data.first,
+                    data.last,
+                    data.email,
+                    hashedPw
+                );
+            })
+            .then((userData) => {
+                cookie.userId = userData.rows[0].id;
+                return res.redirect("/profile");
+            })
+            .catch((err) => {
+                console.log("Error in registration", err);
+                return res.render("error", { registration: true });
+            });
+    }
 };
 
 const comparePw = (req, res) => {
@@ -44,13 +56,13 @@ const comparePw = (req, res) => {
                         })
                         .catch((err) => console.log(err));
                 } else {
-                    res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
+                    return res.render("error", { loggedin: true });
                 }
             });
         })
         .catch((err) => {
             console.log(err);
-            res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
+            return res.render("error", { loggedin: true });
         });
 };
 

@@ -52,6 +52,7 @@ const getUserProfile = (req, res) => {
                     userInfo,
                     logout: true,
                     profile: true,
+                    thanks: true,
                     identifier: "edit-profile",
                 });
             })
@@ -87,12 +88,12 @@ const updateUserProfiles = (req, res) => {
                         res.redirect("/petition")
                     );
                 } else {
-                    res.send("ERROR");
+                    res.render("error");
                 }
             })
             .catch((err) => {
                 console.log(err);
-                res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
+                res.render("error");
             });
     } else {
         hash(password)
@@ -124,13 +125,13 @@ const updateUserProfiles = (req, res) => {
                             res.redirect("/petition")
                         );
                     } else {
-                        res.send("ERROR");
+                        res.render("error");
                     }
                 });
             })
             .catch((err) => {
                 console.log(err);
-                res.send("HIER MUSS NOCH EINE ERROR PAGE REIN");
+                res.render("error");
             });
     }
 };

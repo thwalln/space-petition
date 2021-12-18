@@ -3,7 +3,7 @@ const { updateSignature } = require("../db");
 const postSignature = (req, res) => {
     const data = req.body;
     const cookie = req.session;
-    if (data.signature.length !== 1046) {
+    if (data.signature.length !== 1582) {
         updateSignature(cookie.userId, data.signature)
             .then(() => {
                 cookie.sigId = true;
