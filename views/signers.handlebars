@@ -1,8 +1,7 @@
 <div>
     <h1>Signers Page</h1>
     {{#if city}}
-        Please find below all signers from
-        {{this.city}}
+        <p>Please find below all signers from {{this.city}}</p>
     {{/if}}
 
     <ul>
@@ -14,7 +13,7 @@
                             {{this.last}}</a>{{else}}<span>{{this.first}}
                             {{this.last}}</span>{{/if}}{{#if this.age}}<span>,
                             age
-                            {{this.age}}</span>{{/if}}{{#if this.city}}<span>,
+                            {{this.age}}</span>{{/if}}{{#if this.city}}<span>
                             from</span>
                         <a
                             href="/signers/{{this.city}}"
