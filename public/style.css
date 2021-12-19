@@ -47,6 +47,7 @@ body::after {
 
 main {
     margin: 16px auto;
+    margin-bottom: 64px;
     max-width: 400px;
     width: 100%;
 }
